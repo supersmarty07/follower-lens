@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'; media-src 'none'" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="x-dns-prefetch-control" content="off" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#101014" />
+  <meta name="description" content="Encrypted local-first Instagram follower tracker. Your data stays on your device." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Follower Lens</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0b0f;
+      --panel: #14141b;
+      --panel-2: #1b1b24;
+      --text: #f5f5f7;
+      --muted: #a6a6b3;
+      --line: #2a2a37;
+      --accent: #8a7cff;
+      --accent-2: #d76cff;
+      --good: #49d17d;
+      --bad: #ff6b7a;
+      --warn: #ffbe55;
+      --radius: 20px;
+      --shadow: 0 18px 55px rgba(0,0,0,.34);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at 80% -10%, rgba(138,124,255,.16), transparent 35%), var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { padding-bottom: calc(94px + env(safe-area-inset-bottom)); }
+    button, input, select { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    .app { width: min(100%, 920px); margin: 0 auto; padding: 18px 16px 40px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding: 8px 2px 18px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo { width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-size:22px;box-shadow:0 10px 28px rgba(138,124,255,.28); }
+    .brand h1 { font-size: 18px; margin:0; letter-spacing:-.02em; }
+    .brand p { margin:2px 0 0; color:var(--muted); font-size:12px; }
+    .badge { border:1px solid var(--line); border-radius:999px; padding:8px 10px; color:var(--muted); font-size:12px; background:rgba(20,20,27,.72); }
+    .hero { background: linear-gradient(160deg, rgba(138,124,255,.15), rgba(215,108,255,.06) 58%, transparent), var(--panel); border:1px solid var(--line); border-radius:28px; padding:22px; box-shadow: var(--shadow); overflow:hidden; position:relative; }
+    .eyebrow { color:#c6c1ff; text-transform:uppercase; letter-spacing:.13em; font-size:11px; font-weight:700; }
+    .hero h2 { font-size:30px; line-height:1.05; letter-spacing:-.04em; margin:8px 0 8px; max-width:650px; }
+    .hero p { color:var(--muted); line-height:1.55; margin:0; max-width:700px; font-size:14px; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .btn { border:0; border-radius:14px; padding:12px 15px; font-weight:700; color:white; background:var(--panel-2); cursor:pointer; }
+    .btn.primary { background:linear-gradient(135deg,var(--accent),var(--accent-2)); }
+    .btn.ghost { border:1px solid var(--line); background:transparent; }
+    .btn.danger { border:1px solid rgba(255,107,122,.28); color:#ffabb4; background:rgba(255,107,122,.08); }
+    .btn:active { transform:translateY(1px); }
+    .hidden { display:none !important; }
+    .section { margin-top:18px; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .section-head h3 { margin:0; font-size:17px; }
+    .section-head span { color:var(--muted); font-size:12px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .metric { background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px; min-height:116px; }
+    .metric .label { color:var(--muted); font-size:12px; }
+    .metric .value { font-size:30px; font-weight:800; letter-spacing:-.04em; margin-top:8px; }
+    .metric .sub { margin-top:6px; color:var(--muted); font-size:12px; }
+    .positive { color:var(--good)!important; }
+    .negative { color:var(--bad)!important; }
+    .warning { color:var(--warn)!important; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:16px; }
+    .import-box { border:1px dashed #44445b; border-radius:18px; padding:18px; text-align:center; background:rgba(255,255,255,.015); }
+    .import-box strong { display:block; margin-bottom:6px; }
+    .import-box p { color:var(--muted); margin:0 auto 14px; max-width:620px; font-size:13px; line-height:1.5; }
+    input[type=file] { display:none; }
+    .list-tabs { display:flex; gap:8px; overflow:auto; padding-bottom:4px; scrollbar-width:none; }
+    .tab { white-space:nowrap; background:var(--panel); border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:9px 12px; font-size:12px; font-weight:700; }
+    .tab.active { color:white; background:var(--panel-2); border-color:#47475f; }
+    .search { width:100%; margin:10px 0; border:1px solid var(--line); background:#111118; color:white; border-radius:14px; padding:12px 14px; outline:none; }
+    .people { display:flex; flex-direction:column; gap:8px; }
+    .person { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.015); }
+    .person .handle { font-weight:750; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .person .meta { color:var(--muted); font-size:11px; margin-top:3px; }
+    .pill { flex:0 0 auto; border-radius:999px; padding:6px 8px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; background:#22222e; color:#b9b9c7; }
+    .pill.good { color:#7ae7a3; background:rgba(73,209,125,.1); }
+    .pill.bad { color:#ff9ca6; background:rgba(255,107,122,.1); }
+    .empty { color:var(--muted); text-align:center; padding:24px 10px; font-size:13px; }
+    .history { display:flex; gap:8px; overflow:auto; padding-bottom:4px; scrollbar-width:none; }
+    .snap { min-width:175px; border:1px solid var(--line); background:var(--panel); border-radius:16px; padding:13px; }
+    .snap strong { display:block; font-size:14px; }
+    .snap span { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
+    .footer-note { margin-top:18px; color:var(--muted); font-size:11px; line-height:1.55; text-align:center; }
+    .nav { position:fixed; bottom:0; left:0; right:0; z-index:10; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:linear-gradient(to top, rgba(11,11,15,.98), rgba(11,11,15,.9)); backdrop-filter: blur(14px); border-top:1px solid rgba(255,255,255,.06); }
+    .nav-inner { width:min(100%,920px); margin:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .nav button { border:0; background:transparent; color:var(--muted); border-radius:13px; padding:8px 6px; font-size:10px; font-weight:700; }
+    .nav button.active { color:white; background:var(--panel-2); }
+    .nav .ico { display:block; font-size:18px; margin-bottom:3px; }
+    .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:105px; width:min(calc(100% - 32px),600px); background:#242430; border:1px solid #3b3b4c; color:white; padding:12px 14px; border-radius:14px; box-shadow:var(--shadow); z-index:30; font-size:13px; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.68); z-index:40; display:grid; place-items:end center; padding:12px; }
+    .modal { width:min(100%,650px); background:#15151d; border:1px solid var(--line); border-radius:24px 24px 18px 18px; padding:20px; max-height:85vh; overflow:auto; }
+    .modal h3 { margin:0 0 8px; }
+    .modal p, .modal li { color:var(--muted); font-size:13px; line-height:1.5; }
+    .modal code { color:#ddd9ff; }
+    .modal-actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+    .modal-backdrop.center { place-items:center; }
+    .security-card { margin-top:14px; border:1px solid rgba(73,209,125,.25); background:rgba(73,209,125,.06); border-radius:18px; padding:15px; }
+    .security-card strong { display:block; margin-bottom:7px; }
+    .security-card p { color:var(--muted); font-size:12px; line-height:1.55; margin:6px 0; }
+    .security-list { margin:8px 0 0; padding-left:20px; color:var(--muted); font-size:12px; line-height:1.6; }
+    .password-field { width:100%; border:1px solid var(--line); background:#111118; color:white; border-radius:14px; padding:13px 14px; outline:none; margin-top:9px; }
+    .password-field:focus { border-color:#5e5e7a; }
+    .lock-note { border-left:3px solid var(--warn); padding:9px 11px; background:rgba(255,190,85,.06); color:var(--muted); font-size:12px; line-height:1.5; margin-top:12px; border-radius:0 10px 10px 0; }
+    .secure-state { color:#7ae7a3; }
+    .badge-button { cursor:pointer; }
+    .badge-button:disabled { cursor:default; opacity:.8; }
+    .small-note { color:var(--muted); font-size:11px; line-height:1.5; margin-top:8px; }
+    .pill.warning { color:#ffd28a; background:rgba(255,190,85,.1); }
+    .person-button { width:100%; color:inherit; font:inherit; cursor:pointer; text-align:inherit; }
+    .activity-list, .timeline-list { display:flex; flex-direction:column; gap:8px; }
+    .activity-event, .timeline-item { display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; align-items:start; padding:12px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.015); }
+    .activity-event strong, .timeline-item strong { font-size:13px; }
+    .event-symbol { width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:#242430; color:#c9c9d3; font-weight:900; }
+    .event-symbol.good { color:#7ae7a3; background:rgba(73,209,125,.1); }
+    .event-symbol.bad { color:#ff9ca6; background:rgba(255,107,122,.1); }
+    .event-symbol.warning { color:#ffd28a; background:rgba(255,190,85,.1); }
+    .event-note { margin-top:7px; color:var(--muted); font-size:11px; line-height:1.45; }
+
+    @media (min-width:700px) {
+      .app { padding-top:26px; }
+      .grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      .hero h2 { font-size:42px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">◉</div>
+        <div><h1>Follower Lens</h1><p>Encrypted • local-first</p></div>
+      </div>
+      <button class="badge badge-button" id="statusBadge" type="button" title="Lock Follower Lens">Locked 🔒</button>
+    </header>
+
+    <section class="hero" id="homeHero">
+      <div class="eyebrow">Instagram relationship analytics</div>
+      <h2>Know what changed — without giving away your password.</h2>
+      <p>Import Instagram's JSON data export. Follower Lens compares snapshots on your device to find new followers, unfollowers, mutuals, and accounts that don't follow you back.</p>
+      <div class="actions">
+        <label class="btn primary" for="importFile">Import Instagram data</label>
+        <button class="btn ghost" id="showHelp">How to export</button>
+      </div>
+      <input id="importFile" type="file" accept=".zip,.json,application/zip,application/json" multiple />
+    </section>
+
+    <section class="section" data-view="dashboard">
+      <div class="section-head"><h3>Overview</h3><span id="snapshotLabel">Import your first snapshot</span></div>
+      <div class="grid">
+        <div class="metric"><div class="label">Followers</div><div class="value" id="followersCount">—</div><div class="sub" id="followersDelta">No snapshot yet</div></div>
+        <div class="metric"><div class="label">Following</div><div class="value" id="followingCount">—</div><div class="sub" id="followingDelta">No snapshot yet</div></div>
+        <div class="metric"><div class="label">New followers</div><div class="value positive" id="newCount">—</div><div class="sub">Since previous snapshot</div></div>
+        <div class="metric"><div class="label">Unfollowers</div><div class="value negative" id="lostCount">—</div><div class="sub">Since previous snapshot</div></div>
+        <div class="metric"><div class="label">Mutuals</div><div class="value" id="mutualCount">—</div><div class="sub">You follow each other</div></div>
+        <div class="metric"><div class="label">Not following back</div><div class="value warning" id="notBackCount">—</div><div class="sub">You follow them</div></div>
+        <div class="metric"><div class="label">You don't follow back</div><div class="value" id="youDontCount">—</div><div class="sub">They follow you</div></div>
+        <div class="metric"><div class="label">Net change</div><div class="value" id="netCount">—</div><div class="sub">Followers gained minus lost</div></div>
+        <div class="metric"><div class="label">Possible unavailable</div><div class="value warning" id="possibleCount">—</div><div class="sub">Possible block/deactivation signals</div></div>
+        <div class="metric"><div class="label">Re-followers</div><div class="value positive" id="refollowerCount">—</div><div class="sub">Followed you again</div></div>
+      </div>
+    </section>
+
+    <section class="section" data-view="history">
+      <div class="section-head"><h3>Recent relationship activity</h3><span id="activityCount">0 events</span></div>
+      <div class="activity-list" id="activityList"><div class="empty">Import at least two snapshots to build relationship activity.</div></div>
+      <div class="section-head" style="margin-top:18px"><h3>Snapshot history</h3><span id="historyCount">0 snapshots</span></div>
+      <div class="history" id="historyList"><div class="empty">Your imported snapshots will appear here.</div></div>
+    </section>
+
+    <section class="section" data-view="people">
+      <div class="section-head"><h3>People</h3><span id="peopleCount">0 accounts</span></div>
+      <div class="list-tabs" id="tabs">
+        <button class="tab active" data-tab="unfollowers">Unfollowers</button>
+        <button class="tab" data-tab="new">New followers</button>
+        <button class="tab" data-tab="refollowers">Re-followers</button>
+        <button class="tab" data-tab="possible">Possible unavailable</button>
+        <button class="tab" data-tab="reappeared">Reappeared</button>
+        <button class="tab" data-tab="lostmutuals">Lost mutuals</button>
+        <button class="tab" data-tab="notback">Not following back</button>
+        <button class="tab" data-tab="mutuals">Mutuals</button>
+        <button class="tab" data-tab="followers">All followers</button>
+        <button class="tab" data-tab="following">All following</button>
+      </div>
+      <input class="search" id="search" type="search" placeholder="Search usernames…" />
+      <div class="people" id="peopleList"><div class="empty">Import data to see relationship lists.</div></div>
+    </section>
+
+    <section class="section" data-view="reports">
+      <div class="section-head"><h3>Reports & data</h3><span>Encrypted local vault</span></div>
+      <div class="panel">
+        <div class="actions" style="margin-top:0">
+          <button class="btn primary" id="downloadCsv">Export plaintext CSV</button>
+          <button class="btn" id="printReport">Print / Save PDF</button>
+          <button class="btn ghost" id="backupData">Create encrypted backup</button>
+          <label class="btn ghost" for="restoreFile">Restore encrypted backup</label>
+          <input id="restoreFile" type="file" accept=".json,.flens,application/json" />
+          <button class="btn ghost" id="lockNow">Lock now</button>
+          <button class="btn danger" id="clearData">Erase local vault</button>
+        </div>
+        <div class="security-card">
+          <strong>🔒 Security & privacy — secure build v3</strong>
+          <p>Your follower snapshots are encrypted in this browser with AES-GCM. Your passphrase is used to derive the key and is never stored. ZIP/JSON parsing happens on this device.</p>
+          <ul class="security-list">
+            <li>No Instagram password or session cookie is collected.</li>
+            <li>No analytics, ads, external APIs, or third-party scripts are included.</li>
+            <li>The page Content Security Policy blocks network connections from the app.</li>
+            <li>Encrypted backups stay encrypted until restored with their passphrase.</li>
+            <li>CSV and printable reports are intentionally plaintext exports; protect those files separately.</li>
+          </ul>
+        </div>
+        <p class="footer-note">Possible block/unavailable signals are heuristics only. A missing account can also mean deactivation, deletion, username changes, or both sides changing follow state. Follower Lens never presents a block as confirmed.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <button class="active" data-nav="dashboard"><span class="ico">⌂</span>Overview</button>
+      <button data-nav="people"><span class="ico">◎</span>People</button>
+      <button data-nav="history"><span class="ico">↺</span>History</button>
+      <button data-nav="reports"><span class="ico">▤</span>Reports</button>
+    </div>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <div class="modal-backdrop hidden" id="helpModal">
+    <div class="modal">
+      <h3>Export Instagram data</h3>
+      <p>In Instagram / Accounts Center, request a download of your information and choose <strong>JSON</strong> if available. Include <strong>Followers and following</strong>. Instagram's menu wording can change over time.</p>
+      <ol>
+        <li>Request your Instagram information in JSON format.</li>
+        <li>Download the ZIP when Instagram makes it available.</li>
+        <li>Import the ZIP directly here. If ZIP parsing isn't supported by your browser, extract it on your phone and select the follower/following JSON files instead.</li>
+        <li>Import again later. The app compares the new snapshot with the previous one.</li>
+      </ol>
+      <p>Follower Lens processes the export locally. Snapshot history is encrypted before being stored in IndexedDB. Clearing browser/site data can remove your history, so create an <strong>encrypted backup</strong> periodically.</p>
+      <div class="modal-actions"><button class="btn primary" id="closeHelp">Got it</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop center hidden" id="vaultModal">
+    <div class="modal">
+      <div class="eyebrow secure-state">Encrypted local vault</div>
+      <h3 id="vaultTitle">Unlock Follower Lens</h3>
+      <p id="vaultIntro">Enter your passphrase to decrypt your local follower history.</p>
+      <input class="password-field" id="vaultPassphrase" type="password" autocomplete="current-password" placeholder="Passphrase" />
+      <input class="password-field hidden" id="vaultConfirm" type="password" autocomplete="new-password" placeholder="Confirm passphrase" />
+      <div class="lock-note" id="vaultWarning">Your passphrase is never stored. If you forget it, encrypted history cannot be recovered without an encrypted backup and its passphrase.</div>
+      <div class="modal-actions">
+        <button class="btn primary" id="vaultSubmit" type="button">Unlock</button>
+        <button class="btn danger hidden" id="vaultReset" type="button">Erase vault & start over</button>
+      </div>
+      <div class="small-note" id="vaultStatus">Encryption: AES-256-GCM • Key derivation: PBKDF2-SHA-256</div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop center hidden" id="restorePassModal">
+    <div class="modal">
+      <div class="eyebrow secure-state">Encrypted backup</div>
+      <h3>Unlock backup</h3>
+      <p>Enter the passphrase that protected this backup. It is used only in memory to decrypt the backup and is not stored.</p>
+      <input class="password-field" id="restorePassphrase" type="password" autocomplete="current-password" placeholder="Backup passphrase" />
+      <div class="modal-actions">
+        <button class="btn primary" id="restorePassSubmit" type="button">Decrypt & restore</button>
+        <button class="btn ghost" id="restorePassCancel" type="button">Cancel</button>
+      </div>
+      <div class="small-note" id="restorePassStatus">The restored snapshots will be re-encrypted with your currently unlocked vault key.</div>
+    </div>
+  </div>
+
+
+  <div class="modal-backdrop center hidden" id="timelineModal">
+    <div class="modal">
+      <div class="eyebrow">Relationship timeline</div>
+      <h3 id="timelineTitle"></h3>
+      <p id="timelineSummary"></p>
+      <div class="timeline-list" id="timelineList"></div>
+      <div class="lock-note">“Possible block / unavailable” is only a signal from snapshot differences. Instagram exports do not prove why an account disappeared.</div>
+      <div class="modal-actions"><button class="btn primary" id="timelineClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <script src="app.js" integrity="sha384-spemcGffJVpUp9R3pKaLZcaeRCn8qTVdpPAVTF8NjLvjju+SqfziCXgcPLU9fdOL" crossorigin="anonymous"></script>
+</body>
+</html>
